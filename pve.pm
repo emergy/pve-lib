@@ -103,7 +103,12 @@ sub action {
 
     my $response;
     if ($method eq 'POST') {
-        $response = $ua->post($url, CSRFPreventionToken => $self->{CSRFPreventionToken}, %{$params});
+        $ua->add_handler(request_prepare => sub {
+            my($request, $ua, $h) = @_;
+            $request->header(CSRFPreventionToken => $self->{CSRFPreventionToken});
+        });
+    
+        $response = $ua->post($url, $params);
     } elsif ($method eq 'GET') {
         $response = $ua->get($url);
     }
